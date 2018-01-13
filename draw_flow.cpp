@@ -72,7 +72,6 @@ int main(int argc, char** argv){
     int video_width = 256;
     int video_height = 256;
 
-	int frame_num = 0;
 	Mat image, prev_image, prev_grey, grey, frame;
 
 	ifstream fin;
@@ -91,7 +90,7 @@ int main(int argc, char** argv){
 		int forback,blockx,blocky,srcx,srcy,dstx,dsty,minx,miny;
 		Mat flow_x(video_height,video_width,CV_32F,Scalar(0));
 		Mat flow_y(video_height,video_width,CV_32F,Scalar(0));
-		while true {
+		while(true) {
 			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty;
             if (frame_num != pre_frame){
                 break;
