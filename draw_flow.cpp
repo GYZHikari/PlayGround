@@ -92,7 +92,9 @@ int main(int argc, char** argv){
 		Mat flow_x(video_height,video_width,CV_32F,Scalar(0));
 		Mat flow_y(video_height,video_width,CV_32F,Scalar(0));
 		for (int i=0; i<mv_per_frame; i++) {
-			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty >> minx >> miny;
+			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty;
+			minx = srcx - blockx;
+			miny = srcy - blocky;
 			for (int x=0; x<blockx; x++) {
 				for (int y=0; y<blocky; y++) {
 					if ((dstx-blockx/2+x < 0) || (dsty-blocky/2+y < 0) || (dstx-blockx/2+x > video_width-1) || (dsty-blocky/2+y > video_height-1) || (forback > 0))
@@ -122,8 +124,8 @@ int main(int argc, char** argv){
         writeMatToFile(flow_x, xFlowFile + tmp_f);
         writeMatToFile(flow_y, yFlowFile + tmp_f);
 
-		while (frame_prev < frame_num-1) {
-			frame_prev ++ ;
+	while (frame_prev < frame_num-1) {
+		frame_prev ++ ;
             if (visual == 1){
                 char tmp1[20];
     			sprintf(tmp1,"%04d.png",int(frame_prev));
