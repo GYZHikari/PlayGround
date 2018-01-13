@@ -84,17 +84,18 @@ int main(int argc, char** argv){
 	}
 
 	int frame_prev = 0;
+    int pre_frame = 2;
+    int frame_num = 2;
 	while(!fin.eof()) {
 		// Output optical flow
-		int mv_per_frame = -1;
-		fin >> mv_per_frame;
-		if (mv_per_frame == -1)
-			break;
-		int forback, blockx,blocky,srcx,srcy,dstx,dsty,minx,miny;
+		int forback,blockx,blocky,srcx,srcy,dstx,dsty,minx,miny;
 		Mat flow_x(video_height,video_width,CV_32F,Scalar(0));
 		Mat flow_y(video_height,video_width,CV_32F,Scalar(0));
-		for (int i=0; i<mv_per_frame; i++) {
+		while true {
 			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty;
+            if (frame_num != pre_frame){
+                break;
+            }
 			minx = srcx - blockx;
 			miny = srcy - blocky;
 			for (int x=0; x<blockx; x++) {
@@ -105,6 +106,7 @@ int main(int argc, char** argv){
 					flow_y.at<float>(dsty-blocky/2+y,dstx-blockx/2+x) = (float)miny;
 				}
 			}
+            pre_frame = frame_num;
 		}
 		frame_num = frame_num-1;
         Mat imgX_, imgY_, imgX_small, imgY_small;
