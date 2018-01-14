@@ -3,8 +3,6 @@
  *
  *  Created on: Sep 23, 2015
  *      Author: bwzhang
- *  Revised on: Jan 13, 2018
- *      Author: guangyu
  */
 
 
@@ -72,6 +70,7 @@ int main(int argc, char** argv){
     int video_width = 256;
     int video_height = 256;
 
+	int frame_num = 0;
 	Mat image, prev_image, prev_grey, grey, frame;
 
 	ifstream fin;
@@ -83,20 +82,17 @@ int main(int argc, char** argv){
 	}
 
 	int frame_prev = 0;
-    int pre_frame = 2;
-    int frame_num = 2;
 	while(!fin.eof()) {
 		// Output optical flow
-		int forback,blockx,blocky,srcx,srcy,dstx,dsty,minx,miny;
+		int mv_per_frame = -1;
+		fin >> mv_per_frame;
+		if (mv_per_frame == -1)
+			break;
+		int forback, blockx,blocky,srcx,srcy,dstx,dsty,minx,miny;
 		Mat flow_x(video_height,video_width,CV_32F,Scalar(0));
 		Mat flow_y(video_height,video_width,CV_32F,Scalar(0));
-		while(true) {
-			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty;
-            if (frame_num != pre_frame){
-                break;
-            }
-			minx = srcx - blockx;
-			miny = srcy - blocky;
+		for (int i=0; i<mv_per_frame; i++) {
+			fin >> frame_num >> forback >> blockx >> blocky >> srcx >> srcy >> dstx >> dsty >> minx >> miny;
 			for (int x=0; x<blockx; x++) {
 				for (int y=0; y<blocky; y++) {
 					if ((dstx-blockx/2+x < 0) || (dsty-blocky/2+y < 0) || (dstx-blockx/2+x > video_width-1) || (dsty-blocky/2+y > video_height-1) || (forback > 0))
@@ -105,7 +101,6 @@ int main(int argc, char** argv){
 					flow_y.at<float>(dsty-blocky/2+y,dstx-blockx/2+x) = (float)miny;
 				}
 			}
-            pre_frame = frame_num;
 		}
 		frame_num = frame_num-1;
         Mat imgX_, imgY_, imgX_small, imgY_small;
@@ -127,8 +122,8 @@ int main(int argc, char** argv){
         writeMatToFile(flow_x, xFlowFile + tmp_f);
         writeMatToFile(flow_y, yFlowFile + tmp_f);
 
-	while (frame_prev < frame_num-1) {
-		frame_prev ++ ;
+		while (frame_prev < frame_num-1) {
+			frame_prev ++ ;
             if (visual == 1){
                 char tmp1[20];
     			sprintf(tmp1,"%04d.png",int(frame_prev));
